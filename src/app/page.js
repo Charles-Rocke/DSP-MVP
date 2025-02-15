@@ -1,101 +1,117 @@
-import Image from "next/image";
+"use client";
+import { useState } from "react";
 
-export default function Home() {
+const initialData = [
+  { driver: "Alexander", route: "CX283", van: "S1", quality: "Fantastic" },
+  { driver: "Benjamin", route: "CX177", van: "M12", quality: "Great" },
+  { driver: "Charlotte", route: "CX139", van: "L5", quality: "Fantastic" },
+  { driver: "Daniel", route: "CX101", van: "XL8", quality: "Fantastic" },
+  { driver: "Emily", route: "CX292", van: "S22", quality: "Great" },
+];
+
+export default function DriverAssignment() {
+  const [data, setData] = useState(initialData);
+
+  const updateAssignment = (index, key, value) => {
+    const newData = [...data];
+    newData[index][key] = value;
+    setData(newData);
+  };
+
+  const generatePrediction = () => {
+    const newData = data.map((item) => {
+      return {
+        ...item,
+        route: item.route.includes("CX")
+          ? item.route
+          : `CX${Math.floor(Math.random() * 300) + 1}`, // Keep previous routes if available
+        van:
+          item.van ||
+          ["S1", "M12", "L5", "XL8", "S22"][Math.floor(Math.random() * 5)], // Keep existing vans if possible
+        quality:
+          item.quality === "Fantastic"
+            ? "Fantastic"
+            : ["Good", "Great", "Fantastic"][Math.floor(Math.random() * 3)], // Reward high-performing drivers
+      };
+    });
+    setData(newData);
+  };
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.js
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="p-6 max-w-4xl mx-auto bg-gray-100 min-h-screen flex items-center justify-center">
+      <div className="w-full bg-white shadow-lg rounded-lg p-6">
+        <h1 className="text-2xl font-bold mb-4 text-gray-800">
+          Driver Assignment
+        </h1>
+        <button
+          className="mb-4 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition duration-200"
+          onClick={generatePrediction}
+        >
+          Generate Prediction
+        </button>
+        <div className="overflow-x-auto">
+          <table className="w-full border border-gray-300">
+            <thead>
+              <tr className="bg-gray-200 text-black">
+                <th className="border border-gray-400 p-3 text-left">Driver</th>
+                <th className="border border-gray-400 p-3 text-left">Route</th>
+                <th className="border border-gray-400 p-3 text-left">Van</th>
+                <th className="border border-gray-400 p-3 text-left">
+                  Quality
+                </th>
+                <th className="border border-gray-400 p-3 text-left">
+                  Actions
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((item, index) => (
+                <tr
+                  key={index}
+                  className="border border-gray-300 text-gray-800 bg-white hover:bg-gray-100"
+                >
+                  <td className="border border-gray-300 p-3">{item.driver}</td>
+                  <td className="border border-gray-300 p-3">
+                    <input
+                      className="w-full p-2 border border-gray-400 rounded text-gray-800 bg-gray-100"
+                      value={item.route}
+                      onChange={(e) =>
+                        updateAssignment(index, "route", e.target.value)
+                      }
+                    />
+                  </td>
+                  <td className="border border-gray-300 p-3">
+                    <input
+                      className="w-full p-2 border border-gray-400 rounded text-gray-800 bg-gray-100"
+                      value={item.van}
+                      onChange={(e) =>
+                        updateAssignment(index, "van", e.target.value)
+                      }
+                    />
+                  </td>
+                  <td className="border border-gray-300 p-3">
+                    <input
+                      className="w-full p-2 border border-gray-400 rounded text-gray-800 bg-gray-100"
+                      value={item.quality}
+                      onChange={(e) =>
+                        updateAssignment(index, "quality", e.target.value)
+                      }
+                    />
+                  </td>
+                  <td className="border border-gray-300 p-3">
+                    <button
+                      className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200"
+                      onClick={() => console.log("Saved!", item)}
+                    >
+                      Save
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
     </div>
   );
 }
